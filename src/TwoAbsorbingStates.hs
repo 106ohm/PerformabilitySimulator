@@ -3,8 +3,10 @@ module TwoAbsorbingStates where
 import RewardProcessSim
 import System.Random
 
--- We would like to evaluate E[Y|X=2], to do that we evaluate E[Y|V=1] and then with R
--- we perform the empirical mean of only those Y where V is equal to 1. 
+-- We would like to evaluate the Mean Time To Failure conditioned to been absorbed in "1".
+-- To do that, we define Y with r that is equal to 1 on all the transient states and 0 on the absorbing ones,
+-- so Y is the time to absorbtion, and V the indicator function on state "1".
+-- Thus, the MTTF conditioned to the event "X=1" can be computed as E[Y|V=1]
 -- In this example the absorbing states are 1 and 3
 
 invCDFexp :: Float -> Float
