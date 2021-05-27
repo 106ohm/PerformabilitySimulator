@@ -7,11 +7,13 @@ Given a discrete space, continuous time, stochastic process and performance vari
 # Install
 It is suggested to use [cabal](https://cabal.readthedocs.io) for cloning PerformabilitySimulator.
 
-# Run
-Just run `$cabal run | tee results.csv`, then you can use your favorite software, e.g., R, to compute mean, variance, higher moments-related values, confidence intervales, etc. 
+# Examples
+At the moment we have implemented the following examples:
+* BirthDeath: a simple birth-death CTMC
+* TwoAbsorbingStates: a simple CTMC with two absorbing states
 
-# Example
-At the moment, only a simple birth death process is implemented, but the reader will be easily able to define more complex processes.
+# Run
+Just run `$cabal run -v0 example_name | tee results.csv`, then you can use your favorite software, e.g., R, to compute mean, variance, higher moments-related values, confidence intervales, etc. 
 
 # Didactics
 I can see a few reasons to study and/or exercize PerformabilitySimulator:
