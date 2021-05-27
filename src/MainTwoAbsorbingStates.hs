@@ -4,10 +4,11 @@ import Control.Monad.State.Lazy
 import System.Random
 import RewardProcessSim
 
-import BirthDeath
+--import BirthDeath
+import TwoAbsorbingStates
 
 main :: IO Current
-main = sim cur 1000
+main = sim cur 10
 
 
 

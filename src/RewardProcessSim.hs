@@ -46,6 +46,8 @@ data PerformanceVariable = PV {name :: String
 instance Show PerformanceVariable where
   show pv = case (value pv) of
     Done float -> show float
+    -- for debugging: Undefined  -> show "undefined"
+    -- for debugging: Working float -> show "working" ++ show float
     _ -> "NaN"
 
 performanceVariableTime :: PerformanceVariable -> Time
@@ -104,12 +106,33 @@ step C{proc=proc, performanceVariables=pvs, here=n, now=t, randomNumberGenerator
   pvs' = map updatePerformanceVariable pvs 
   updatePerformanceVariable pv@PV{name=name, reward=r, kind=k, value=v} = case (v, k) of
     (Done f, _)                      -> pv
-    (_, Instantaneous inst)          -> PV{name=name, reward=r, kind=k, value = if tr/=End && t<=inst && inst<t' then Done (r !! n) else Undefined}
-    (Undefined, Accumulated lb ub)   -> PV{name=name, reward=r, kind=k, value = if t<=lb && t'<ub then Working ( (t'-lb)*(r !! n) ) 
-                                                                                else if t<=lb && ub<=t' then Done ( (ub-lb)*(r !! n) )
-                                                                                else Undefined}
-    (Working acc, Accumulated lb ub) -> PV{name=name, reward=r, kind=k, value = if ub<=t' then Done ( acc+(ub-t)*(r !! n) ) 
-                                                                                else Working ( acc+(t'-t)*(r !! n) )}        
+    (_, Instantaneous inst)          -> PV{ name=name
+                                          , reward=r
+                                          , kind=k
+                                          , value = if tr/=End then
+                                                      if t<=inst && inst<t' 
+                                                      then Done (r !! n) 
+                                                      else Undefined
+                                                    else Done (r !! n)
+                                          }
+    (Undefined, Accumulated lb ub)   -> PV{ name=name
+                                          , reward=r
+                                          , kind=k
+                                          , value = if t<=lb && t'<ub 
+                                                    then Working ( (t'-lb)*(r !! n) ) 
+                                                    else if t<=lb && ub<=t' 
+                                                    then Done ( (ub-lb)*(r !! n) )
+                                                    else Undefined
+                                          }
+    (Working acc, Accumulated lb ub) -> PV{ name=name
+                                          , reward=r
+                                          , kind=k
+                                          , value = if tr/=End then 
+                                                      if ub<=t' 
+                                                      then Done ( acc+(ub-t)*(r !! n) ) 
+                                                      else Working ( acc+(t'-t)*(r !! n) )
+                                                    else Done acc
+                                          }        
 
 
   status = if tr==End || t' > (maxPerformanceVariablesTime pvs) then Ended else Running
