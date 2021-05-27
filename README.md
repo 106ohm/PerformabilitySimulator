@@ -11,6 +11,7 @@ It is suggested to use [cabal](https://cabal.readthedocs.io) for cloning Perform
 At the moment we have implemented the following examples:
 * BirthDeath: a simple birth-death CTMC
 * TwoAbsorbingStates: a simple CTMC with two absorbing states
+* ConditionalAccumulatedReward: here the reward structure is non trivial
 
 # Run
 Just run `$cabal run -v0 example_name | tee results.csv`, then you can use your favorite software, e.g., R, to compute mean, variance, higher moments-related values, confidence intervales, etc. 
