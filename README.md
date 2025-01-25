@@ -7,7 +7,7 @@ Given a discrete space, continuous time, stochastic process and performance vari
 # Install
 It is suggested to exploit [cabal](https://cabal.readthedocs.io) for cloning PerformabilitySimulator.
 
-# Two kinds of models
+# Two kinds of model formalisms:
 PerformabilitySimulator allows the definition of two kinds of model:
 * _RewardProcessSim_ assumes the modeler has at hand the full representation of the directed graph comprising model states as nodes and transitions as arches, or a clever way to explore the graph. Easy to work with, but prone to the state explosion issue
 * _RewardProcessSimStateVariables_ partly implements the _state variables_ and _actions_ paradigm presented in ... Slightly more complex to work with, but much more efficient than RewardProcessSim 
