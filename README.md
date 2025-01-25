@@ -5,13 +5,35 @@ A simple simulator to evaluate performability measures on stochastic processes
 Given a discrete space, continuous time, stochastic process and performance variables (actually, we are interessed in performability variables, i.e., performance and/or dependability variables), each defined through a reward structure as in "A Unified Approach for Specifying Measures of Performance, Dependability, and Performability" (Sanders and Meyer, 1999), this code simulates *nbatches* times the process and evaluates the variables.
 
 # Install
-It is suggested to use [cabal](https://cabal.readthedocs.io) for cloning PerformabilitySimulator.
+It is suggested to exploit [cabal](https://cabal.readthedocs.io) for cloning PerformabilitySimulator.
 
 # Examples
 At the moment we have implemented the following examples:
 * BirthDeath: a simple birth-death CTMC
 * TwoAbsorbingStates: a simple CTMC with two absorbing states
 * ConditionalAccumulatedReward: here the reward structure is non trivial
+
+# Details on _RewardProcessSim_
+A _node_ is an integer and represent a _model state_.
+
+A _simulation state_ comprises all the information carried on: transitions and performance variables. In the code, the word "state" means simulation state and is manipolated through the State monad.
+
+A _transition_ represents how the model changes.
+A transition is active only in one _start_ node and switch the model to one _arrive_ node.
+A transition is activated after a rand delay, drawn from a given probability distribution; in the code, the inverse of the Cumulative Distribution Function is implemented in _inverseCDF_. 
+
+A _reward_ is a list of floats, indexed by nodes.
+
+# Details on _RewardProcessSimStateVariables_
+A _state variable_ is an integer. A _model state_ is represented as a list of state variables. In the code, the corresponding type is __StateVariables__.
+
+A _simulation state_ comprises all the information carried on: transitions, state variables and performance variables. In the code, the word "state" means simulation state and is manipolated through the State monad.
+
+A _transition_ is enabled in a subset of model states; in the code, _isEnabled_ is responsible for checking.
+If activated, a transition changes the model state; in the code, _arrive_ defines how.
+Once enabled, a transition is activated after a rand delay, drawn from a given probability distribution; in the code, the inverse of the Cumulative Distribution Function is implemented in _inverseCDF_. 
+
+A _reward_ if a function that evaluted on a model state returns a float.
 
 # Run
 Just run `$cabal run -v0 example_name | tee results.csv`, then you can use your favorite software, e.g., R, to compute mean, variance, higher moments-related values, confidence intervales, etc. 
