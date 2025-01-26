@@ -35,8 +35,8 @@ rewardV svs = if (svs!!0 == 1)
                  then 1.0
 		 else 0.0
 
-cur = C { proc = [ T{isEnabled=isEnabled1,inverseCDF=invCDFexp,arrive=arrive1}
-                 , T{isEnabled=isEnabled2,inverseCDF=invCDFexp,arrive=arrive2}
+cur = C { proc = [ A{isEnabled=isEnabled1,inverseCDF=invCDFexp,arrive=arrive1}
+                 , A{isEnabled=isEnabled2,inverseCDF=invCDFexp,arrive=arrive2}
                  ]
         , performanceVariables = [ PV { name = "Y"
                                       , reward = rewardY -- this is the reward of interest, nonzero only on transient states

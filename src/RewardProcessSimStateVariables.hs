@@ -18,17 +18,17 @@ type Rate = Float
 
 type Delay = Float
 
-data Transition = T { isEnabled :: StateVariables -> Bool
-                    , inverseCDF :: Float -> Float
-                    , arrive :: StateVariables -> StateVariables 
-                    } deriving (Show)
+data Action = A { isEnabled :: StateVariables -> Bool
+                , inverseCDF :: Float -> Float
+                , arrive :: StateVariables -> StateVariables 
+                } deriving (Show)
 
-data FiredTransition = FT { delay :: Delay
-                          , arrived :: StateVariables
-                          } 
-                     | End deriving (Show, Eq)
+data FiredAction = FA { delay :: Delay
+                      , arrived :: StateVariables
+                      } 
+                 | End deriving (Show, Eq)
 
-type Process = [Transition]
+type Process = [Action]
 
 type Reward = StateVariables -> Float
 
@@ -69,27 +69,25 @@ data Current = C { proc :: Process
                  , randomNumberGenerator :: StdGen -- TODO at the moment only standard number generator is allowed
                  } deriving (Show)
 
-enabled :: Process -> StateVariables -> [Transition]
+enabled :: Process -> StateVariables -> [Action]
 enabled proc svs = filter (\x -> ((isEnabled x) svs)) proc -- TODO define connetivity lists to enhance efficiency
 
--- TODO fix fire and earliest: tuple (gen, svs) instead of gen in the previous version of the code
-
-fire :: RandomGen g => (g, StateVariables) -> Transition -> ((g, StateVariables), FiredTransition)
-fire (gen, svs) tr = ((gen', svs), FT {delay=d, arrived=svs'}) where
+fire :: RandomGen g => (g, StateVariables) -> Action -> ((g, StateVariables), FiredAction)
+fire (gen, svs) a = ((gen', svs), FA {delay=d, arrived=svs'}) where
   sampleAndGen = randomR (0.0::Time,1.0::Time) gen
   y = fst sampleAndGen -- y is a sample from the standard uniform distribution U
   gen' = snd sampleAndGen
-  d = (inverseCDF tr) y -- inverse probability integral transform: d is a sample of X=CDF^{-1}_X(U), where X is the transition delay
-  svs' = (arrive tr) svs
+  d = (inverseCDF a) y -- inverse probability integral transform: d is a sample of X=CDF^{-1}_X(U), where X is the transition delay
+  svs' = (arrive a) svs
 
-earliest :: RandomGen g => g -> StateVariables -> [Transition] -> (FiredTransition, g)
-earliest gen svs enabledList = if firedTransitions == [] 
+earliest :: RandomGen g => g -> StateVariables -> [Action] -> (FiredAction, g)
+earliest gen svs enabledList = if firedActions == [] 
                                then (End, gen') 
-                               else (selectedTransition, gen') 
-                               where genAndStateVariablesAndFiredTransitions = mapAccumL fire (gen, svs) enabledList
-                                     firedTransitions = snd genAndStateVariablesAndFiredTransitions
-                                     selectedTransition = foldl (\x y -> if (delay x)<(delay y) then x else y) FT{delay = 1.0/0.0, arrived = []} firedTransitions
-                                     gen' = fst $ fst genAndStateVariablesAndFiredTransitions
+                               else (selectedAction, gen') 
+                               where genAndStateVariablesAndFiredActions = mapAccumL fire (gen, svs) enabledList
+                                     firedActions = snd genAndStateVariablesAndFiredActions
+                                     selectedAction = foldl (\x y -> if (delay x)<(delay y) then x else y) FA{delay = 1.0/0.0, arrived = []} firedActions
+                                     gen' = fst $ fst genAndStateVariablesAndFiredActions
 
 step :: Current -> ((Status, String), Current)
 step C{proc=proc, performanceVariables=pvs, here=svs, now=t, randomNumberGenerator=gen} = (
@@ -100,18 +98,18 @@ step C{proc=proc, performanceVariables=pvs, here=svs, now=t, randomNumberGenerat
                                                          , randomNumberGenerator = gen'
                                                          }) 
   where
-  trAndGen = earliest gen svs ( enabled proc svs )
-  tr = fst trAndGen
-  gen' = snd trAndGen
-  t' = if tr==End then t else t + (delay tr) -- advance time
-  svs' = if tr==End then svs else arrived tr -- change state variables
+  aAndGen = earliest gen svs ( enabled proc svs )
+  a = fst aAndGen
+  gen' = snd aAndGen
+  t' = if a==End then t else t + (delay a) -- advance time
+  svs' = if a==End then svs else arrived a -- change state variables
   pvs' = map updatePerformanceVariable pvs 
   updatePerformanceVariable pv@PV{name=name, reward=r, kind=k, value=v} = case (v, k) of
     (Done f, _)                      -> pv
     (_, Instantaneous inst)          -> PV{ name=name
                                           , reward=r
                                           , kind=k
-                                          , value = if tr/=End then
+                                          , value = if a/=End then
                                                       if t<=inst && inst<t' 
                                                       then Done (r svs) 
                                                       else Undefined
@@ -129,7 +127,7 @@ step C{proc=proc, performanceVariables=pvs, here=svs, now=t, randomNumberGenerat
     (Working acc, Accumulated lb ub) -> PV{ name=name
                                           , reward=r
                                           , kind=k
-                                          , value = if tr/=End then 
+                                          , value = if a/=End then 
                                                       if ub<=t' 
                                                       then Done ( acc+(ub-t)*(r svs) ) 
                                                       else Working ( acc+(t'-t)*(r svs) ) 
@@ -137,7 +135,7 @@ step C{proc=proc, performanceVariables=pvs, here=svs, now=t, randomNumberGenerat
                                           }        
 
 
-  status = if tr==End || t' > (maxPerformanceVariablesTime pvs) then Ended else Running
+  status = if a==End || t' > (maxPerformanceVariablesTime pvs) then Ended else Running
 
 -- stochastic reward process logic ends here --
 

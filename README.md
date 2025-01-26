@@ -10,7 +10,15 @@ It is suggested to exploit [cabal](https://cabal.readthedocs.io) for cloning Per
 # Two kinds of model formalisms:
 PerformabilitySimulator allows the definition of two kinds of model:
 * _RewardProcessSim_ assumes the modeler has at hand the full representation of the directed graph comprising model states as nodes and transitions as arches, or a clever way to explore the graph. Easy to work with, but prone to the state explosion issue
-* _RewardProcessSimStateVariables_ partly implements the _state variables_ and _actions_ paradigm presented in ... Slightly more complex to work with, but much more efficient than RewardProcessSim 
+* _RewardProcessSimStateVariables_ partly implements the _state variables_ and _actions_ paradigm presented in ... Slightly more complex to work with, but much more efficient than RewardProcessSim
+
+# Measures defined on the model
+the objective of modeling is acquire specific information about the model, hoping these iformation tell us something about the real system.
+A _reward_ structure is defined: if the simulation is in a state then a reward is gained.
+In PerformabilitySimulator we can define _performance variables_ of two kinds:
+* _instantaneous_
+* _accumulated_
+Notice that performance, reliability, availability, resilience, survivability, etc are defined combining performance variables.
 
 # Examples
 At the moment we have implemented the following examples:
@@ -20,7 +28,7 @@ At the moment we have implemented the following examples:
 * ConditionalAccumulatedReward: this is an example of non trivial reward structure over a trivial model. Here, RewardProcessSim is exploited
 
 # Details on _RewardProcessSim_
-A _node_ is an integer and represent a _model state_.
+A _node_ is an integer and represents a _model state_.
 
 A _simulation state_ comprises all the information carried on: transitions and performance variables. In the code, the word "state" means simulation state and is manipolated through the State monad.
 
@@ -46,7 +54,7 @@ Just run `$cabal run -v0 example_name | tee results.csv`, then you can use your 
 
 # Didactics
 A few reasons to study and/or exercize PerformabilitySimulator are:
-* it is a very simple Discrete Event Simulator, so a good starting point to understand the basic concepts behind the implementation of a DES. In particular, among the enabled transitions, the earliest is selected. Actually, the stochastic process itself is represented as a list of transitions. Of course this is _not_ the most _efficient_ way of selecting the next state given a state, i.e., apply the _step_ function, because each time the list of enabled transition has to be defined and scanned, and is _not_ the most _effective_ because usually this kind of process is defined through an higher level formalism (e.g., Stochastic Petri Nets, Process Algebra, etc) and then the state is beter represented in other ways. Here clareness and simplicity are more relevant than expressibility and performance.
+* it is a very simple Discrete Event Simulator, so a good starting point to understand the basic concepts behind the implementation of a DES. In RewardProcessSim the stochastic process is represented as a list of transitions. In RewardProcessSimStateVariables as a list of actions. Of course this is _not_ the most _efficient_ way of selecting the next state given a state, i.e., apply the _step_ function, because each time the list of enabled transitions/actions has to be defined and scanned. Here, clareness and simplicity are more relevant than performance.
 * it is a good example of simple but not trivial application of the _state monad_. Given a state we want to select and transition to another state, updating the performance variables: is there a better application of the state monad?
 * also the use of the IO monad is interesting, exploited to run _nbatches_ simulation batches and write on the standard output the performance variables.
 * each transition, when fired, produce a delay that is a random variable drawn from a given distribution. As common practice in the field, we exploit the Probability Integral Transform Theorem to sample a given distribution, and it is interesting how the random number generator is managed.
