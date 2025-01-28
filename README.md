@@ -13,12 +13,12 @@ PerformabilitySimulator allows the definition of two kinds of model:
 * _RewardProcessSimStateVariables_ partly implements the _state variables_ and _actions_ paradigm presented in ... Slightly more complex to work with, but much more efficient than RewardProcessSim
 
 # Measures defined on the model
-the objective of modeling is acquire specific information about the model, hoping these iformation tell us something about the real system.
-A _reward_ structure is defined: if the simulation is in a state then a reward is gained.
+the objective of modeling is acquire specific information about the model, hoping these information tell us something about the real system.
+A _reward_ structure is defined: if the simulation is in a given state then a given reward is gained.
 In PerformabilitySimulator we can define _performance variables_ of two kinds:
-* _instantaneous_
-* _accumulated_
-Notice that performance, reliability, availability, resilience, survivability, etc are defined combining performance variables.
+* _instantaneous_: the reward gained in a specified time instant is returned
+* _accumulated_: the reward gained from time 0 to a specified instant is returned
+Notice that performance, reliability, availability, resilience or survivability measures (or many others more) are defined combining performance variables.
 
 # Examples
 At the moment we have implemented the following examples:
@@ -26,6 +26,7 @@ At the moment we have implemented the following examples:
 * TwoAbsorbingStates: a simple CTMC with two absorbing states. Here, the direct graph of the model is trivial and then RewardProcessSim is exploited
 * TwoAbsorbingStatesStateVariables: same model as TwoAbsorbingStates implemented exploiting RewardProcessSimStateVariables, with one state variable
 * ConditionalAccumulatedReward: this is an example of non trivial reward structure over a trivial model. Here, RewardProcessSim is exploited
+* NMR: a simple reliability model of a N Modular Redundant system that continuously provides a service as long as a simple majority ceil((N+1)/2) of N components are working correctly
 
 # Details on _RewardProcessSim_
 A _node_ is an integer and represents a _model state_.
