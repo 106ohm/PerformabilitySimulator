@@ -48,7 +48,7 @@ A _transition_ is enabled in a subset of model states; in the code, _isEnabled_ 
 If activated, a transition changes the model state; in the code, _arrive_ defines how.
 Once enabled, a transition is activated after a rand delay, drawn from a given probability distribution; in the code, the inverse of the Cumulative Distribution Function is implemented in _inverseCDF_. 
 
-A _reward_ if a function that evaluted on a model state returns a float.
+A _reward_ is a function that evaluted on a model state returns a float.
 
 # Run
 Just run `$cabal run -v0 example_name | tee results.csv`, then you can use your favorite software, e.g., R, to compute mean, variance, higher moments-related values, confidence intervales, etc. 
