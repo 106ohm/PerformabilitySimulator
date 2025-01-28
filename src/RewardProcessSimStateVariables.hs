@@ -86,7 +86,7 @@ earliest gen svs enabledList = if firedActions == []
                                else (selectedAction, gen') 
                                where genAndStateVariablesAndFiredActions = mapAccumL fire (gen, svs) enabledList
                                      firedActions = snd genAndStateVariablesAndFiredActions
-                                     selectedAction = foldl (\x y -> if (delay x)<(delay y) then x else y) FA{delay = 1.0/0.0, arrived = []} firedActions
+                                     selectedAction = foldl (\x y -> if (delay x)<(delay y) then x else y) FA {delay = 1.0/0.0, arrived = []} firedActions
                                      gen' = fst $ fst genAndStateVariablesAndFiredActions
 
 step :: Current -> ((Status, String), Current)
@@ -106,33 +106,33 @@ step C{proc=proc, performanceVariables=pvs, here=svs, now=t, randomNumberGenerat
   pvs' = map updatePerformanceVariable pvs 
   updatePerformanceVariable pv@PV{name=name, reward=r, kind=k, value=v} = case (v, k) of
     (Done f, _)                      -> pv
-    (_, Instantaneous inst)          -> PV{ name=name
-                                          , reward=r
-                                          , kind=k
-                                          , value = if a/=End then
-                                                      if t<=inst && inst<t' 
-                                                      then Done (r svs) 
-                                                      else Undefined
-                                                    else Done (r svs) 
-                                          }
-    (Undefined, Accumulated lb ub)   -> PV{ name=name
-                                          , reward=r
-                                          , kind=k
-                                          , value = if t<=lb && t'<ub 
-                                                    then Working ( (t'-lb)*(r svs) ) 
-                                                    else if t<=lb && ub<=t' 
-                                                    then Done ( (ub-lb)*(r svs) )
-                                                    else Undefined
-                                          }
-    (Working acc, Accumulated lb ub) -> PV{ name=name
-                                          , reward=r
-                                          , kind=k
-                                          , value = if a/=End then 
-                                                      if ub<=t' 
-                                                      then Done ( acc+(ub-t)*(r svs) ) 
-                                                      else Working ( acc+(t'-t)*(r svs) ) 
-                                                    else Done acc
-                                          }        
+    (_, Instantaneous inst)          -> PV { name=name
+                                           , reward=r
+                                           , kind=k
+                                           , value = if a/=End then
+                                                       if t<=inst && inst<t' 
+                                                       then Done (r svs) 
+                                                       else Undefined
+                                                     else Done (r svs) 
+                                           }
+    (Undefined, Accumulated lb ub)   -> PV { name=name
+                                           , reward=r
+                                           , kind=k
+                                           , value = if t<=lb && t'<ub 
+                                                     then Working ( (t'-lb)*(r svs) ) 
+                                                     else if t<=lb && ub<=t' 
+                                                     then Done ( (ub-lb)*(r svs) )
+                                                     else Undefined
+                                           }
+    (Working acc, Accumulated lb ub) -> PV { name=name
+                                           , reward=r
+                                           , kind=k
+                                           , value = if a/=End then 
+                                                       if ub<=t' 
+                                                       then Done ( acc+(ub-t)*(r svs) ) 
+                                                       else Working ( acc+(t'-t)*(r svs) ) 
+                                                     else Done acc
+                                           }        
 
 
   status = if a==End || t' > (maxPerformanceVariablesTime pvs) then Ended else Running
